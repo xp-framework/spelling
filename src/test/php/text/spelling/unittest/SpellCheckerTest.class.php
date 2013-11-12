@@ -7,61 +7,36 @@ use text\spelling\SpellChecker;
  *
  * @see      xp://text.spelling.SpellChecker
  */
+#[@action(new \unittest\actions\ExtensionAvailable('pspell'))]
 class SpellCheckerTest extends \unittest\TestCase {
 
   /**
-   * Sets up test case
-   *
-   */
-  public function setUp() {
-    if (!extension_loaded('pspell')) {
-      throw new \unittest\PrerequisitesNotMetError('Spelling not available', null, array('ext/pspell'));
-    }
-  }
-  
-  /**
    * Create a new spell checker instance with the specified language
    *
-   * @param   string language
+   * @param   string $language
    * @return  text.spelling.SpellChecker
    */
   protected function spelling($language) {
     return new SpellChecker($language);
   }
 
-  /**
-   * Tests creating a spellchecker with an unavailable language
-   *
-   */
   #[@test, @expect('lang.IllegalArgumentException')]
-  public function unavailableLanguage() {
+  public function unavailable_language_passed_to_constructor_raises_exception() {
     $this->spelling('@@unavailable@@');
   }
   
-  /**
-   * Tests check() method
-   *
-   */
   #[@test]
-  public function correctlySpelled() {
+  public function check_returns_true_for_correctly_spelled_input() {
     $this->assertTrue($this->spelling('en')->check('Hello'));
   }
 
-  /**
-   * Tests check() method
-   *
-   */
   #[@test]
-  public function misSpelled() {
+  public function check_returns_false_for_correctly_misspelled_input() {
     $this->assertFalse($this->spelling('en')->check('Bahnhof'));
   }
 
-  /**
-   * Tests suggestionsFor() method
-   *
-   */
   #[@test]
-  public function suggestions() {
+  public function suggestions_returns_nonempty_array_for_misspelled_input() {
     $suggestionsFor= $this->spelling('en')->suggestionsFor('delibrate');
     $this->assertArray($suggestionsFor);
     $this->assertNotEquals(0, sizeof($suggestionsFor));
